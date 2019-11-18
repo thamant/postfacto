@@ -32,7 +32,7 @@ require 'queries/safe_order_by'
 
 ActiveAdmin.register Retro do
   menu priority: 1
-  actions :all
+  actions :all #, except: [:destroy]
   permit_params :name, :slug, :video_link, :password, :encrypted_password, :is_private
 
   filter :name
@@ -101,27 +101,27 @@ ActiveAdmin.register Retro do
       h2 'No Owner'
     end
 
-    panel 'Items' do
-      items = Item.unscoped.where(retro_id: retro.id)
-      query = SafeOrderBy.new(items, { 'items_reaction_count' => 'vote_count' }).order(params[:order])
-      table_for(query, sortable: true, class: 'index_table') do |t|
-        t.column('Id', :id, sortable: false)
-        t.column('Description', :description, sortable: false)
-        t.column('Category', :category, sortable: false)
-        t.column('Reaction Count', :vote_count, sortable: 'items_reaction_count')
-        t.column('Done', :done, sortable: false)
-        t.column('Archived At', :archived_at, sortable: false)
-      end
-    end
-    panel 'Action Items' do
-      table_for(ActionItem.unscoped.where(retro_id: retro.id)) do |t|
-        t.column('Id', :id)
-        t.column('Description', :description)
-        t.column('Done', :done)
-        t.column('Created At', :created_at)
-        t.column('Archived At', :archived_at)
-      end
-    end
+    # panel 'Items' do
+    #   items = Item.unscoped.where(retro_id: retro.id)
+    #   query = SafeOrderBy.new(items, { 'items_reaction_count' => 'vote_count' }).order(params[:order])
+    #   table_for(query, sortable: true, class: 'index_table') do |t|
+    #     t.column('Id', :id, sortable: false)
+    #     t.column('Description', :description, sortable: false)
+    #     t.column('Category', :category, sortable: false)
+    #     t.column('Reaction Count', :vote_count, sortable: 'items_reaction_count')
+    #     t.column('Done', :done, sortable: false)
+    #     t.column('Archived At', :archived_at, sortable: false)
+    #   end
+    # end
+    # panel 'Action Items' do
+    #   table_for(ActionItem.unscoped.where(retro_id: retro.id)) do |t|
+    #     t.column('Id', :id)
+    #     t.column('Description', :description)
+    #     t.column('Done', :done)
+    #     t.column('Created At', :created_at)
+    #     t.column('Archived At', :archived_at)
+    #   end
+    # end
   end
 
   form do |f|
@@ -144,8 +144,9 @@ ActiveAdmin.register Retro do
     end
     f.actions
   end
-
+  
   controller do
+    skip_before_action :authenticate_active_admin_user, only: [:show, :new, :create, :edit, :update], raise: false
     before_action :load_retro, only: [:show, :edit, :update, :destroy]
 
     def load_retro
@@ -175,5 +176,16 @@ ActiveAdmin.register Retro do
       params[:retro].delete('remove_password')
       update!
     end
+
+    def self.filters(kind = nil)
+      all_filters = _process_action_callbacks
+      all_filters = all_filters.select{|f| f.kind == kind} if kind
+      all_filters.map(&:filter)
+    end
+    # binding.pry
+    def self.before_filters
+      filters(:before)
+    end
+    # binding.pry
   end
 end

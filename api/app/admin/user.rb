@@ -29,7 +29,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 ActiveAdmin.register User do
-  actions :all, except: [:update, :edit]
+  actions :all, except: [:destroy, :update, :edit]
   permit_params :name, :email, :company_name
 
   scope('Retro Owners') { |users| users.joins(:retros).group('users.id') }
@@ -56,15 +56,16 @@ ActiveAdmin.register User do
   end
 
   controller do
-    def destroy
-      user = User.find(params[:id])
+    skip_before_action :authenticate_active_admin_user, only: [:show, :new, :create], raise: false
+    # def destroy
+    #   user = User.find(params[:id])
 
-      if user.retros.empty?
-        user.destroy!
-        redirect_to admin_users_path, flash: { success: 'User was successfully destroyed.' }
-      else
-        redirect_to admin_users_path, flash: { error: 'Can\'t delete a user with Retros!' }
-      end
-    end
+    #   if user.retros.empty?
+    #     user.destroy!
+    #     redirect_to admin_users_path, flash: { success: 'User was successfully destroyed.' }
+    #   else
+    #     redirect_to admin_users_path, flash: { error: 'Can\'t delete a user with Retros!' }
+    #   end
+    # end
   end
 end
