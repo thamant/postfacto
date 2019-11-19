@@ -44,6 +44,7 @@ class Retro < ActiveRecord::Base
   validates_uniqueness_of :slug
   validates_length_of :slug, maximum: MAX_SLUG_LENGTH
   validates_format_of :slug, with: /\A[a-zA-z0-9-]+\z/
+  validates :owner_email, presence: true, allow_blank: false
 
   def password=(val)
     unless val.blank?

@@ -34,6 +34,14 @@ ActiveAdmin.register Retro do
   menu priority: 1
   actions :all #, except: [:destroy]
   permit_params :name, :slug, :video_link, :password, :encrypted_password, :is_private
+  before_create do |retro|
+    puts params['retro']['owner_email']
+    # if !User.exists?(params['retro']['owner_email'])
+    #   redirect
+    # else
+      @retro.user = find_user_by_email(params['retro']['owner_email'])
+    # end
+  end
 
   filter :name
   filter :slug
@@ -131,7 +139,7 @@ ActiveAdmin.register Retro do
       f.input :name
       f.input :slug
       f.input :video_link
-      f.input :owner_email, label: 'Owner Email'
+      f.input :owner_email, label: 'Owner Email', required: true
       f.input :is_private, label: 'Private?', input_html: { checked: f.object.is_private || true }
     end
 
@@ -144,11 +152,11 @@ ActiveAdmin.register Retro do
     end
     f.actions
   end
-  
+
   controller do
     skip_before_action :authenticate_active_admin_user, only: [:show, :new, :create, :edit, :update], raise: false
     before_action :load_retro, only: [:show, :edit, :update, :destroy]
-
+    
     def load_retro
       @retro = Retro.friendly.find(params.fetch(:id))
     end
@@ -159,7 +167,7 @@ ActiveAdmin.register Retro do
 
     def update
       owner_email = params['retro']['owner_email']
-
+      
       if owner_email.blank?
         @retro.user = nil
       else

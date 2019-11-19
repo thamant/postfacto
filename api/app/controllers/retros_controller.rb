@@ -113,7 +113,7 @@ class RetrosController < ApplicationController
   end
 
   def retro_params
-    params.require(:retro).permit(:name, :slug, :password, :item_order, :is_private)
+    params.require(:retro).permit(:name, :slug, :owner_email, :password, :item_order, :is_private)
   end
 
   def retro_archive_params

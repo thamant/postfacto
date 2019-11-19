@@ -75,3 +75,5 @@ en:
           attributes:
             slug:
               taken: "Sorry! That URL is already taken."
+            owner_email:
+              blank: 'Email of exising user is required. Create one <a href="https://postfacto.apps.cac.pcf.manulife.com/users/new">here.</a>'

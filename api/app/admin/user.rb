@@ -39,7 +39,7 @@ ActiveAdmin.register User do
     column('ID', :id)
     column('Email', :email)
     column('Name', :name)
-    column('Company Name', :company_name)
+    column('Team Name', :company_name)
     column('Created At', :created_at)
     column('Updated At', :updated_at)
     column('Auth Token', :auth_token)
@@ -55,6 +55,17 @@ ActiveAdmin.register User do
     end
   end
 
+  form do |f|
+    f.semantic_errors
+
+    f.inputs do
+      f.input :email
+      f.input :name
+      f.input :company_name, label: 'Team Name'
+    end
+    f.actions
+  end
+  
   controller do
     skip_before_action :authenticate_active_admin_user, only: [:show, :new, :create], raise: false
     # def destroy
